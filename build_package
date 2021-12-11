@@ -50,6 +50,12 @@ def main():
     if pkgver is None or pkgrel is None:
         print_invalid_version(pkgname)
         exit(1)
+
+    tar_zst_name = f'{fwd}/tmp/{pkgname}/{pkgname}-{pkgver}-{pkgrel}-x86_64.pkg.tar.zst'
+
+    if exists(tar_zst_name):
+        print('package is already built')
+        exit(1)
     
     create_tmp_dir(pkgname)
 
