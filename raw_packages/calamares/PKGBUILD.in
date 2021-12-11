@@ -31,4 +31,8 @@ build() {
 package() {
 	cd ${srcdir}/calamares-${pkgver}/build
 	make DESTDIR="$pkgdir" install
+
+	cd ../../..
+	mkdir -p $pkgdir/usr/share/calamares
+	cp data/settings.conf $pkgdir/usr/share/calamares
 }
