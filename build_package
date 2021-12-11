@@ -1,0 +1,83 @@
+#!/usr/bin/env python
+
+import os
+import re
+import sys
+import glob
+import shutil
+
+from genericpath import exists
+
+fwd = os.path.dirname(os.path.realpath(__file__))
+version_re = re.compile('[0-9]+(\\.[0-9]+)+\\-[0-9]+')
+
+def print_usage():
+    print(f'usage: {sys.argv[0]} <pkgname>')
+
+
+def print_invalid_version(pkgname: str):
+    print(f'invalid version for package \'{pkgname}\'')
+
+
+def create_tmp_dir(pkgname: str):
+    if not exists(f'{fwd}/tmp'): os.mkdir(f'{fwd}/tmp')
+
+    tmp_path = f'{fwd}/tmp/{pkgname}'
+    if exists(tmp_path): shutil.rmtree(tmp_path)
+    os.mkdir(tmp_path)
+
+
+def main():
+    args = sys.argv[1:]
+    if len(args) != 1:
+        print_usage()
+        exit(1)
+    
+    pkgname = args[0]
+    pkgver: str = None
+    pkgrel: str = None
+
+    with open(f'{fwd}/raw_packages/{pkgname}/VERSION', 'r') as f:
+        tmp = f.read().strip()
+        if (not version_re.match(tmp)):
+            print_invalid_version(pkgname)
+            exit(1)
+        
+        tmp = tmp.split('-')
+        pkgver = tmp[0]
+        pkgrel = tmp[1]
+    
+    if pkgver is None or pkgrel is None:
+        print_invalid_version(pkgname)
+        exit(1)
+    
+    create_tmp_dir(pkgname)
+
+    pkgbuild_content: str = None
+    with open(f'{fwd}/raw_packages/{pkgname}/PKGBUILD.in', 'r') as f:
+        pkgbuild_content = f.read()
+    
+    pkgbuild_content = pkgbuild_content.replace('[[pkgver]]', str(pkgver))
+    pkgbuild_content = pkgbuild_content.replace('[[pkgrel]]', str(pkgrel))
+    
+    with open(f'{fwd}/tmp/{pkgname}/PKGBUILD', 'w') as f:
+        f.write(pkgbuild_content)
+
+    shutil.copytree(f'{fwd}/raw_packages/{pkgname}/data', f'{fwd}/tmp/{pkgname}/data')
+
+    for fname in glob.glob(f'{fwd}/x86_64/{pkgname}*.tar.zst'):
+        os.remove(fname)
+
+    os.chdir(f'{fwd}/tmp/{pkgname}')
+    os.system('makepkg -s')
+
+    tar_zst_name = f'{fwd}/tmp/{pkgname}/{pkgname}-{pkgver}-{pkgrel}-x86_64.pkg.tar.zst'
+    shutil.copy(tar_zst_name, f'{fwd}/x86_64/')
+
+    os.chdir(f'{fwd}/x86_64')
+    os.system(f'repo-add vatis-linux.db.tar.gz {tar_zst_name}')
+
+    exit(0)
+
+
+if __name__ == '__main__': main()
