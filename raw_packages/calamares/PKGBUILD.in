@@ -12,7 +12,7 @@ makedepends=('boost' 'extra-cmake-modules' 'git' 'qt5-tools' 'qt5-translations')
 backup=('usr/share/calamares/modules/bootloader.conf' 'usr/share/calamares/modules/displaymanager.conf' 'usr/share/calamares/modules/initcpio.conf' 'usr/share/calamares/modules/unpackfs.conf')
 
 source+=("$url/releases/download/v$pkgver/calamares-$pkgver.tar.gz")
-sha256sums=('05e8eb287baf74b7161ed50a9ce60bea098ccec3183fc77786cc5aa0d3db5fb4')
+sha256sums=('86bdceb90eb81d42596b780ccd99385002e2b8d45d8fae836156d37b5122d020')
 
 prepare() {
 	cd ${srcdir}/calamares-${pkgver}
