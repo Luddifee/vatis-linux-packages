@@ -15,24 +15,25 @@ source+=("$url/releases/download/v$pkgver/calamares-$pkgver.tar.gz")
 sha256sums=('86bdceb90eb81d42596b780ccd99385002e2b8d45d8fae836156d37b5122d020')
 
 prepare() {
-	cd ${srcdir}/calamares-${pkgver}
-	printf 'Version: %s-%s' "${pkgver}" "${pkgrel}"
+    cd ${srcdir}/calamares-${pkgver}
+    printf 'Version: %s-%s' "${pkgver}" "${pkgrel}"
 }
 
 build() {
-	cd ${srcdir}/calamares-${pkgver}
+    cd ${srcdir}/calamares-${pkgver}
 
-	mkdir -p build
-	cd build
+    mkdir -p build
+    cd build
     cmake ../ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib
     cmake --build ./
 }
 
 package() {
-	cd ${srcdir}/calamares-${pkgver}/build
-	make DESTDIR="$pkgdir" install
+    cd ${srcdir}/calamares-${pkgver}/build
+    make DESTDIR="$pkgdir" install
 
-	cd ../../..
-	mkdir -p $pkgdir/usr/share/calamares
-	cp data/settings.conf $pkgdir/usr/share/calamares
+    cd ../../..
+    mkdir -p $pkgdir/usr/share/calamares
+    cp data/settings.conf $pkgdir/usr/share/calamares/
+    cp -r data/modules $pkgdir/usr/share/calamares/
 }
