@@ -36,4 +36,5 @@ package() {
     mkdir -p $pkgdir/usr/share/calamares
     cp data/settings.conf $pkgdir/usr/share/calamares/
     cp -r data/modules $pkgdir/usr/share/calamares/
+    cp -r data/branding $pkgdir/usr/share/calamares/branding/vatis-linux
 }
